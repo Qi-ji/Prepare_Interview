@@ -70,7 +70,6 @@ int GetDuplication(const int *aNumber, int iLength)
 				break;
 		}
 		
-		
 		if (iCount > (iMiddle - iStart + 1))
 		{
 			iEnd = iMiddle;	
@@ -85,8 +84,31 @@ int GetDuplication(const int *aNumber, int iLength)
 
 
 
-题目三：二维数组中查找
-
+题目三：二维数组中查找（用时25min）
+在一个二维数组中，每一行都按照从左到右递增的顺序排列，每一列都按照从上到下递增的顺序排序，请完成输入一个二维数组和一个整数，判断数组中是否含有该整数。
+思路：比较右上角或者左下角的数值。
+bool FindNumInMatrix(int *Matrix, int iRows, int iCols, int iNumber)
+{
+	int iRow, iCol;
+	iRow = 0;
+	iCol = iCols - 1;/*指向没行中的最后一列*/
+	
+	while(iRow < iRows && iCol > 0)
+	{
+		if (Matrix[iRow * iCols + iCol] > iNumber)
+		{
+			iCol--;
+		}
+		else if (Matrix[iRow * iCols + iCol] < iNumber)
+			iRow--;
+		else
+		{
+			return ture;
+			break;
+		}
+	}
+	return false;
+}
 
 
 
