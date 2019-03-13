@@ -111,6 +111,62 @@ bool FindNumInMatrix(int *Matrix, int iRows, int iCols, int iNumber)
 	return false;
 }
 
+字符串：每个字符串都是以‘\0’ 作为结尾的，这样很容易找到字符串的结尾，但是会有一个额外的开销，
+一不小心就会造成字符串的越界。
+
+题目四：替换空格（用时35min）
+请实现一个函数，把字符串中的每个空格替换成“%20”。 例如，we are happy. -> we%20are%20happy.
+思路：在原理字符串上进行替换。当合并两个数组或者字符串的时候，如果从前向后合并会有成员移动
+多次的话，应该考虑从后向前合并。
+
+int ReplacBlank(char *string)
+{
+	int i;
+	int iBlankNum;
+	int iLength;
+	char *strOriginalEnd;
+	char *strReplacedEnd;
+	
+	if (NULL == string || iLength < 0)
+		return -1;
+	/*计算空格数量*/
+	/*
+	for (i=0; i<iLength; i++)
+	{
+		if (string[i] == ' ')
+			iBlankNum++;
+	}
+	*/  这种方式通过参数给定字符串的长度，但是这样不确定是否是计算了‘\0’ 的大小
+	
+	while (string++ != '\0')
+	{
+		iLength++;
+		if (string[i] == ' ')
+			iBlankNum++;
+	}
+	
+	strOriginalEnd = string + iLength + 1;
+	strReplacedEnd = strOriginalEnd + iBlankNum * 2;
+	
+	while (iBlankNum)
+	{
+		if (strOriginalEnd-- == ' ')
+		{
+			strReplacedEnd-- = '0';
+			strReplacedEnd-- = '2';
+			strReplacedEnd-- = '%';
+			iBlankNum--;
+		}
+		else
+			strReplacedEnd-- = strOriginalEnd--;
+	}
+	
+}
+
+
+
+
+
 
 
 
