@@ -164,7 +164,54 @@ int ReplacBlank(char *string)
 }
 
 
+华为测试1
+#include <stdio.h>
+#include <string.h>
 
+int main(void)
+{
+    char str[1000];
+    char c[2];
+    int i = 0;
+    int iLength;
+    int iCount = 0;
+    gets(str);
+    gets(c);        //防止是回车后再输入单个字符
+   // printf("%s\n", c[0]);
+    while (str[i] != '\0')
+    {
+        if ('A' <= str[i] && str[i] <= 'Z')
+            str[i] += 32;
+        i++;
+    }
+    
+    iLength = strlen(str);
+    /*在一行中将所有内容输入*/
+    if (NULL == c[0])
+    {
+        c[0] = str[iLength-1];
+        for (i=0; i<iLength-3; i++)
+        {
+            if (str[i] == c[0])
+                iCount++;
+        }
+    }
+    /*在第二行输入单个字符*/
+    else
+    {
+        if (c[0] >= 'A' && c[0] <= 'Z')
+            c[0] += 32;
+        
+        for (i=0; i<iLength; i++)
+        {
+            if (str[i] == c[0])
+                iCount++;
+        }
+        
+    }
+    printf("%d\n",iCount);
+    return 0;
+}
 
 
 
