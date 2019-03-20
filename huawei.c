@@ -681,7 +681,503 @@ int main12(void)
 	return 0;
 }
 
+开发一个简单错误记录功能小模块，能够记录出错的代码所在的文件名称和行号。处理： 1、 记录最多8条错误记录，循环记录，对相同的错误记录（净文件名称和行号完全匹配）只记录一条，错误计数增加；2、 超过16个字符的文件名称，只记录文件的最后有效16个字符；3、 输入的文件可能带路径，记录文件名称不能带路径。
+一行或多行字符串。每行包括带路径文件名称，行号，以空格隔开。
+E:\V1R2\product\fpgadrive.c   1325
+
+fpgadrive.c 1325 1
+
+#include <stdio.h>
+#include <string.h>
+
+int main13(void)
+{
+	char StrGetIn[100] = {0};
+	char record[10][100] = {0,0};
+	char count[10] = {1};
+	int len,i;
+	int flag = 0;
+	int DocNum = 0;
+	
+	char *pTemp;
+	char *plen;
+	//char *pFile;
+	
+	while (gets(StrGetIn))
+	{
+		if (strlen(StrGetIn) != 0)
+		{
+			/*注意是 ‘\\’*/
+			pTemp = strrchr(StrGetIn, '\\') + 1; /*找到字符串中最后一个，并返回指向该点的指针*/
+			
+			if (DocNum == 8)
+			{
+				DocNum = 0;
+			}
+				
+			for (i=0; i<8; i++)
+			{
+				if (!strcmp(record[i], pTemp)) 
+				{
+					count[i]++;
+					flag = 1;
+					break;		
+				}
+			}
+			
+			if (!flag)
+			{
+				plen = strchr(pTemp, ' ');
+				while (plen - pTemp > 16)
+				{
+					 pTemp  += 1;
+				}
+				strcpy(record[DocNum],pTemp);  
+				DocNum++;
+			}
+			else 
+				flag = 0;
+			
+			for (i=0; i<8;i++)
+			{
+				if(record[i][0] != 0)
+				{
+					printf("%s %d\n",record[i], count[i]);
+				}
+				
+			}
+			
+		}	
+	}
+	return 0;
+}
+
+
+原理：ip地址的每段可以看成是一个0-255 的整数，把每段拆分成一个二进制形式组合起来，然后把这个二进制数转变成一个长整数。
+举例：一个ip地址为10.0.3.193 每段数字相对应的二进制数
+10                   00001010
+0                    00000000
+3                    00000011
+193                  11000001
+组合起来即为：00001010 00000000 00000011 11000001,转换为10进制数就是：167773121，即该IP地址转换后的数字就是它了。的每段可以看成是一个0-255的整数，需要对IP地址进行校验
+
+
+
+
+#include <stdio.h>
+#include <string.h>
+
+int main(void)
+{
+	unsigned int a,b,c,d;
+	a =10;
+	b = 0;
+	c = 3;
+	d = 193;
+	printf("%d\n",a<<2);
+	printf("%d\n",a<<4);
+	printf("%d\n",a<<6);
+	printf("%d\n",a<<24);
+	//sum=(a<<24)|(b<<16)|(c<<8)|d;
+	return 0;
+}
+
+
+密码要求:
+1.长度超过8位
+2.包括大小写字母.数字.其它符号,以上四种至少三种
+3.不能有相同长度超2的子串重复
+说明:长度超过2的子串   021Abc9000
+
+
+#include <stdio.h>
+#include <string.h>
+
+int CheckForKinds(char *str)
+{
+	int i = 0;
+	int a = 0, b = 0, c = 0, d = 0;
+
+	
+	while (str[i] != '\0')
+	{
+		if (str[i] >= 'A' && str[i] <= 'Z')
+			a = 1;
+		else if (str[i] >= 'a' && str[i] <= 'b')
+			b = 1;
+		else if (str[i] >= '0' && str[i] <= '9')
+			c = 1;
+		else 
+			d = 1;
+		i++;
+		
+	}
+	
+	return a+b+c+d;
+}
+int main15(void)
+{
+	char StrGetIn[256];
+	int len;
+	int count = 0;
+	int i,j,m,n;	
+	int flag = 0;
+	
+	while (gets(StrGetIn))
+	{
+		len = strlen(StrGetIn);
+		flag = 0;
+		if (len > 9)
+		{
+			if(CheckForKinds(StrGetIn) > 2)
+			{
+				for(i=0; i<len-4; i++)
+				{
+					for(j=i+3; j<len-2; j++)
+					{
+						m = i;
+						n = j;
+						count = 0;
+						
+						if(StrGetIn[m] == StrGetIn[n])
+						{
+							if(StrGetIn[m+1] == StrGetIn[n+1])
+							{
+								if(StrGetIn[m+2] == StrGetIn[n+2])
+									flag = 1;
+							}
+				
+						}		
+					}
+				}
+				
+			}
+			else
+				flag = 1;
+		}
+		else
+			flag = 1;
+		
+		if (flag)
+			printf("NG\n");
+		else
+			printf("OK\n");
+
+	}
+	return 0;
+}
+
+
+
+他是这么变换的，大家都知道手机上的字母： 1--1， abc--2, def--3, ghi--4, jkl--5, mno--6, pqrs--7, tuv--8 wxyz--9, 0--0,就这么简单，渊子把密码中出现的小写字母都变成对应的数字，数字和其他的符号都不做变换，
+声明：密码中没有空格，而密码中出现的大写字母则变成小写之后往后移一位，如：X，先变成小写，再往后移一位，不就是y了嘛，简单吧。记住，z往后移是a哦。
+
+
+
+
+#include <stdio.h>
+#include <string.h>
+
+void uppercase(char *captical)
+{
+	if(*captical == 'Z')
+		*captical = 'a';
+	else
+	    *captical = *captical + 32 + 1;
+	
+}
+
+void lowercase(char *minuscule)
+{
+	if (*minuscule >= 'a' && *minuscule <= 'c')
+		*minuscule = '2';
+	else if (*minuscule >= 'd' && *minuscule <= 'f')
+		*minuscule = '3';
+	else if (*minuscule >= 'g' && *minuscule <= 'i')
+		*minuscule = '4';
+	else if (*minuscule >= 'j' && *minuscule <= 'l')
+		*minuscule = '5';
+	else if (*minuscule >= 'm' && *minuscule <= 'o')
+		*minuscule = '6';
+	else if (*minuscule >= 'p' && *minuscule <= 's')
+		*minuscule = '7';
+	else if (*minuscule >= 't' && *minuscule <= 'v')
+		*minuscule = '8';
+	else if (*minuscule >= 'w' && *minuscule <= 'z')
+		*minuscule = '9';
+}
+int main16(void)
+{
+	char StrGetIn[256];
+	int len;
+	int count = 0;
+	int i,j,m,n;	
+
+	while (gets(StrGetIn))
+	{
+		len = strlen(StrGetIn);
+		for (i=0; i<len; i++)
+		{
+			if (StrGetIn[i] >= 'A' && StrGetIn[i] <= 'Z')
+				uppercase(&StrGetIn[i]);
+			else if (StrGetIn[i] >= 'a' && StrGetIn[i] <= 'z')
+				lowercase(&StrGetIn[i]);
+		}
+		printf("%s\n", StrGetIn);
+		
+	}
+	
+	
+}
+
+
+实现删除字符串中出现次数最少的字符，若多个字符出现次数一样，则都删除。输出删除这些单词后的字符串，字符串中其它字符保持原来的顺序
+
+
+#include <stdio.h>
+#include <string.h>
+
+int main17(void)
+{
+	char StrGetIn[20];
+	char bucket[26] = {0};
+	int len;
+	int min = 0;
+	int i,j,m,n;
+
+	while(gets(StrGetIn))
+	{
+		memset(bucket,0,sizeof(bucket));
+		len = strlen(StrGetIn);
+		for (i=0; i<len; i++)
+			bucket[ StrGetIn[i]-'a' ]++;
+		
+		min = bucket[ StrGetIn[0]-'a' ];
+		for (i=0; i<len; i++)
+		{
+			if (bucket[ StrGetIn[i]-'a' ] < min )
+				min = bucket[ StrGetIn[i]-'a' ];
+		}
+		for (i=0; i<len; i++)
+		{
+			if (bucket[ StrGetIn[i]-'a' ] != min)
+				printf("%c", StrGetIn[i]);
+		}
+		printf("\n");
+	}
+	return 0;
+}
+
+编写一个程序，将输入字符串中的字符按如下规则排序。
+
+规则 1 ：英文字母从 A 到 Z 排列，不区分大小写。
+
+       如，输入： Type   输出： epTy
+
+规则 2 ：同一个英文字母的大小写同时存在时，按照输入顺序排列。
+
+     如，输入： BabA   输出： aABb
+
+规则 3 ：非英文字母的其它字符保持原来的位置。
+
+     如，输入： By?e   输出： Be?y
+
+
+//不能通过 不知道什么原因
+#include <stdio.h>
+#include <string.h>
+
+int main(void)
+{
+	char StrGetIn[500];
+	char bucket[500] = {0};
+	int len;
+	char k = 0;
+	int i,j,m,n;
+
+	while(gets(StrGetIn))
+	{
+		len = strlen(StrGetIn);
+		for(i=0; i<26; i++)
+		{
+			for (j=0; j<len; j++)
+			{
+				if (StrGetIn[j] == ('a' + i ) || StrGetIn[j] ==('A' + i))
+					bucket[k++] = StrGetIn[j];
+			}
+		}
+		k = 0;
+		for (i=0; i<len; i++)
+		{
+			if (StrGetIn[i] >= 'A' && StrGetIn[i] <= 'Z' || StrGetIn[i] >= 'a' && StrGetIn[i] <= 'z') 
+				StrGetIn[i] = bucket[k++];
+		}
+		printf("%s\n", StrGetIn);
+	}
+	return 0;
+}
+
+
+按照指定规则对输入的字符串进行处理。
+
+详细描述：
+
+将输入的两个字符串合并。
+
+对合并后的字符串进行排序，要求为：下标为奇数的字符和下标为偶数的字符分别从小到大排序。这里的下标意思是字符在字符串中的位置。
+
+对排序后的字符串进行操作，如果字符为‘0’——‘9’或者‘A’——‘F’或者‘a’——‘f’，则对他们所代表的16进制的数进行BIT倒序的操作，并转换为相应的大写字符。如字符为‘4’，为0100b，则翻转后为0010b，也就是2。转换后的字符为‘2’； 如字符为‘7’，为0111b，则翻转后为1110b，也就是e。转换后的字符为大写‘E’
+
+#include <stdio.h>
+#include <string.h>
+  
+char *pStr;
+  
+/*
+ *功能：字符串处理
+ *输入：两个字符串，需要异常处理
+ *输出：合并处理后的字符串
+ 返回：无
+ */
+void ProcessString(const char *str1,const char *str2,char *strOutput)
+{
+    if(str1 == NULL || str2 == NULL)
+        exit(1);        // exit(1)表示异常退出
+    //step1；合并字符串
+    pStr = strcat(str1, str2);
+    int len = strlen(pStr);
+    char tmp;
+    //step2；字符串排序：从小到大
+    //a.奇数位置字符排序
+    for(int i=0; i<len; i += 2)
+    {
+        for(int j=i+2; j<len; j += 2)
+        {
+            if(*(pStr + j) < *(pStr + i))
+            {
+                tmp = *(pStr + j);
+                *(pStr + j) = *(pStr + i);
+                *(pStr + i) = tmp;
+            }
+        }
+    }
+    //偶数位置字符排序
+    for(int i=1; i<len; i += 2)
+    {
+        for(int j=i+2; j<len; j += 2)
+        {
+            if(*(pStr + j) < *(pStr + i))
+            {
+                tmp = *(pStr + j);
+                *(pStr + j) = *(pStr + i);
+                *(pStr + i) = tmp;
+            }
+        }
+    }
+    //printf("%s", pStr);    测试OK，可以实现排序
+    //step3；字符串处理之转换为十六进制bit倒序
+    //思路：0-9字符转换为16进制数字atoi()，并逆序，后来想了下挺麻烦的，于是使用了查表法
+    for(int i=0; i<len; i++)
+    {
+        tmp = *(pStr + i);
+        if(tmp == 'a' || tmp == 'A')    tmp = '5';
+        else if(tmp == 'b' || tmp == 'B')    tmp = 'D';
+        else if(tmp == 'c' || tmp == 'C')    tmp = '3';
+        else if(tmp == 'd' || tmp == 'D')    tmp = 'B';
+        else if(tmp == 'e' || tmp == 'E')    tmp = '7';
+        else if(tmp == 'f' || tmp == 'F')    tmp = 'F';
+        else if(tmp == '1')    tmp = '8';
+        else if(tmp == '2')    tmp = '4';
+        else if(tmp == '3')    tmp = 'C';
+        else if(tmp == '4')    tmp = '2';
+        else if(tmp == '5')    tmp = 'A';
+        else if(tmp == '6')    tmp = '6';
+        else if(tmp == '7')    tmp = 'E';
+        else if(tmp == '8')    tmp = '1';
+        else if(tmp == '9')    tmp = '9';
+        *(pStr + i) = tmp;
+    }
+    printf("%s\n", pStr);        //一定要添加‘\n’，否则会有莫名的错误，比如输出比正确的字符要长
+      
+}
+  
+int main()
+{
+    char str1[1000],str2[1000],str[2000]={0};
+  
+    while(scanf("%s %s", str1, str2) != EOF)
+    {
+        ProcessString(str1, str2, str);
+    }
+    return 0;
+}
+
+
+
 #endif
+
+
+
+
+#include <stdio.h>
+#include <string.h>
+
+int main(void)
+{
+	int a, b, c, d;
+	int ip[4];
+	int i = 0;
+	unsigned int num,numIn;
+	while(scanf("%d.%d.%d.%d", &a,&b,&c,&d) != EOF)
+	{
+		scanf("%u", &numIn);
+		
+		num = ((a<<24)|(b<<16)|(c<<8)|d);
+		printf ("%u\n",num);
+		
+		ip[0] = (numIn&0xff000000)>>24;
+		ip[1] = (numIn&0x00ff0000)>>16;
+		ip[2] = (numIn&0x0000ff00)>>8;
+		ip[3] = (numIn&0x000000ff);
+		
+		printf ("%d.%d.%d.%d\n", ip[0],ip[1],ip[2],ip[3]);
+	}
+	
+	return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
